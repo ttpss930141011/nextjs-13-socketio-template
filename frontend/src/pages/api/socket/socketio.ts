@@ -18,9 +18,11 @@ const socketio = async (req: NextApiRequest, res: NextApiResponseServerIO) => {
             path: "/api/socket/socketio",
             addTrailingSlash: false,
         });
-        io.on("connect", () => {
-            console.log("SOCKET CONNECTED!");
-        })
+        io.on("connect", (socket) => {
+            console.log("SOCKET CONNECTED!", socket.id);
+        }).on("disconnect", () => {
+            console.log("SOCKET DISCONNECTED!");
+        });
         // append SocketIO server to Next.js socket server response
         res.socket.server.io = io;
     } else {

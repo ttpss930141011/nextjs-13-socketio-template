@@ -15,12 +15,20 @@ const userSockets = new Map();
 io.on("connection", (socket) => {
     console.log(socket.id);
 
+    socket.on("join", (userId) => {
+        userSockets.set(userId, socket.id);
+        console.log(userSockets);
+    });
+
     socket.on("message", (message, callback) => {
-        console.log(message);
-        io.emit("message", message);
-        callback({
-            status: "ok",
-        });
+        const { from: sourceSocketId, to: targetSocketId } = message;
+        io.to(targetSocketId).emit("message", message);
+        io.to(sourceSocketId).emit("message", message);
+        if (callback) {
+            callback({
+                ok: true,
+            });
+        }
     });
 
     socket.on("disconnect", () => {

@@ -1,4 +1,5 @@
 import { SOCKET_URL } from "@/config";
+import { SocketMessage } from "@/types/next";
 import { toast } from "react-hot-toast";
 import { io, Socket } from "socket.io-client";
 import { create } from "zustand";
@@ -6,7 +7,7 @@ import { create } from "zustand";
 type Store = {
     socketReady: boolean;
     socket: null | Socket;
-    emit: (event: string, data: any) => void;
+    emit: (event: string, data: SocketMessage) => void;
     disconnect: () => void;
 };
 
@@ -32,7 +33,8 @@ const useSocketStore = create<Store>((set, get) => {
     return {
         socketReady: false,
         socket: socket,
-        emit: async (event: string, data: any) => {
+        emit: async (event: string, data: SocketMessage) => {
+            console.log("emit", event, data);
             if (process.env.NODE_ENV === "development") {
                 try {
                     const response = await fetch("/api/socket/message", {
@@ -42,14 +44,13 @@ const useSocketStore = create<Store>((set, get) => {
                         },
                         body: JSON.stringify(data),
                     });
-                    console.log("response", response);
                 } catch (error) {
                     if (error instanceof Error) toast.error(error?.message);
                 }
             } else {
                 // This response needs to define on server at first.
-                socket.emit(event, data, (response: any) => {
-                    console.log(response.status); // ok
+                socket.emit(event, data, (response: { ok: boolean }) => {
+                    if (!response.ok) toast.error("Something went wrong");
                 });
             }
         },
@@ -58,6 +59,8 @@ const useSocketStore = create<Store>((set, get) => {
             if (socket) {
                 socket.disconnect();
                 set({ socket: null });
+            } else {
+                toast.error("Socket not connected");
             }
         },
     };

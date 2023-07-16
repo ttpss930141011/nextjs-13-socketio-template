@@ -9,3 +9,10 @@ export type NextApiResponseServerIO = NextApiResponse & {
         };
     };
 };
+
+export type SocketMessage = {
+    from: string;
+    to: string;
+    message: string;
+    timestamp: number;
+};

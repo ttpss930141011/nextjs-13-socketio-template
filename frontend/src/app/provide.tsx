@@ -15,6 +15,7 @@ export function AppProvider({ children }: Prop) {
             console.log("disconnect");
             disconnect();
         };
+        // eslint-disable-next-line react-hooks/exhaustive-deps
     }, []);
 
     return (
