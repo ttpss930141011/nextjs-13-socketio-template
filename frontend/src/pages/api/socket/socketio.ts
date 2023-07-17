@@ -11,7 +11,7 @@ export const config = {
 
 const socketio = async (req: NextApiRequest, res: NextApiResponseServerIO) => {
     if (!res.socket.server.io) {
-        console.log("First connect on socket.io");
+        console.log("MOCK SERVER: First connect on socket.io");
         // adapt Next's net Server to http Server
         const httpServer: NetServer = res.socket.server as any;
         const io = new ServerIO(httpServer, {
@@ -19,14 +19,14 @@ const socketio = async (req: NextApiRequest, res: NextApiResponseServerIO) => {
             addTrailingSlash: false,
         });
         io.on("connect", (socket) => {
-            console.log("SOCKET CONNECTED!", socket.id);
+            console.log("MOCK SERVER: SOCKET CONNECTED!", socket.id);
         }).on("disconnect", () => {
-            console.log("SOCKET DISCONNECTED!");
+            console.log("MOCK SERVER: SOCKET DISCONNECTED!");
         });
         // append SocketIO server to Next.js socket server response
         res.socket.server.io = io;
     } else {
-        console.log("Socket.io already running");
+        console.log("MOCK SERVER: Socket.io already running");
     }
     res.end();
 };

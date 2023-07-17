@@ -21,6 +21,7 @@ io.on("connection", (socket) => {
     });
 
     socket.on("message", (message, callback) => {
+        console.log("PRODUCTION SERVER: ", message);
         const { from: sourceSocketId, to: targetSocketId } = message;
         io.to(targetSocketId).emit("message", message);
         io.to(sourceSocketId).emit("message", message);
