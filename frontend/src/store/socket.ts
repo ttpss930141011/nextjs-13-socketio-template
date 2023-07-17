@@ -45,6 +45,7 @@ const useSocketStore = create<Store>((set, get) => {
                 console.log("Socket already connected", socket);
                 toast.error("Socket already connected");
             } else {
+                console.log("Connecting to socket", SOCKET_URL);
                 const socket = io(
                     SOCKET_URL,
                     process.env.NODE_ENV === "development"
