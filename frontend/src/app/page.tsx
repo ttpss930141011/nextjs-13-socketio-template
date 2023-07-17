@@ -1,5 +1,5 @@
 "use client";
-import { Container, Title, createStyles, rem } from "@mantine/core";
+import { Container, Title, createStyles, rem, Text, Code, Mark } from "@mantine/core";
 import { Button } from "@mantine/core";
 import { useRouter } from "next/navigation";
 
@@ -59,8 +59,23 @@ export default function Home() {
                     >
                         Tiny Socket.io demo
                     </Title>
-                    <Title className={classes.subtitle}>Based on Next.js 13, Socket.io.</Title>
-
+                    <Title className={classes.subtitle}>
+                        Based on <a href="https://nextjs.org/">Next.js13</a>,
+                        <a href="https://mantine.dev/">Mantine</a>,
+                        <a href="https://socket.io/">Socket.io</a>,
+                        <a href="https://zustand-demo.pmnd.rs/">Zustand</a>.
+                    </Title>
+                    <Text className={"opacity-75 max-w-full sm:max-w-[700px]"} mt={30}>
+                        This repo implements a simple chat app with Socket.io and Next.js 13.
+                        <br />
+                        You can use <Code>npm run dev</Code> to access
+                        <Mark> Next.js mock socket.io server </Mark>
+                        to test the app locally.
+                        <br />
+                        Or use <Code>npm run prod</Code> to access the
+                        <Mark> express server </Mark>
+                        in the backend folder to test like the production scenario.
+                    </Text>
                     <Button
                         mt={30}
                         size="lg"
