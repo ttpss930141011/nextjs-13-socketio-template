@@ -14,7 +14,7 @@ import useSocketStore from "@/store/socket";
 import { useEffect, useRef, useState, useLayoutEffect } from "react";
 import { MessageWithMe, SocketMessage } from "@/types/next";
 import { toast } from "react-hot-toast";
-import ChatroomTitle from "@/components/ChatRoomTitle";
+import ChatroomTitle from "@/components/ChatroomTitle";
 
 const useStyles = createStyles((theme) => ({
     rightMessageField: {

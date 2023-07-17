@@ -22,10 +22,12 @@ const useStyles = createStyles((theme) => ({
         fontFamily: `Greycliff CF, ${theme.fontFamily}`,
         fontWeight: 900,
         fontSize: rem(64),
-
-        [theme.fn.smallerThan("md")]: {
+        display: "flex",
+        flexWrap: "nowrap",
+       
+        [theme.fn.smallerThan("sm")]: {
             maxWidth: "100%",
-            fontSize: rem(34),
+            fontSize: rem(28),
             lineHeight: 1.15,
         },
     },
@@ -37,9 +39,9 @@ const useStyles = createStyles((theme) => ({
         lineHeight: 1.05,
         fontSize: rem(40),
 
-        [theme.fn.smallerThan("md")]: {
+        [theme.fn.smallerThan("sm")]: {
             maxWidth: "100%",
-            fontSize: rem(26),
+            fontSize: rem(18),
             lineHeight: 1.15,
         },
     },
@@ -59,13 +61,44 @@ export default function Home() {
                     >
                         Tiny Socket.io demo
                     </Title>
+
                     <Title className={classes.subtitle}>
-                        Based on <a href="https://nextjs.org/">Next.js13</a>,
-                        <a href="https://mantine.dev/">Mantine</a>,
-                        <a href="https://socket.io/">Socket.io</a>,
-                        <a href="https://zustand-demo.pmnd.rs/">Zustand</a>.
+                        Based on{" "}
+                        <Text
+                            component="a"
+                            td="underline"
+                            href="https://nextjs.org/"
+                            variant="gradient"
+                            gradient={{ from: "yellow", to: "red", deg: 105 }}
+                        >
+                            Next.js13,{" "}
+                        </Text>
+                        <Text
+                            component="a"
+                            href="https://mantine.dev/"
+                            variant="gradient"
+                            gradient={{ from: "red", to: "purple", deg: 105 }}
+                        >
+                            Mantine,{" "}
+                        </Text>
+                        <Text
+                            component="a"
+                            href="https://socket.io/"
+                            variant="gradient"
+                            gradient={{ from: "purple", to: "blue", deg: 105 }}
+                        >
+                            Socket.io,{" "}
+                        </Text>
+                        <Text
+                            component="a"
+                            href="https://zustand-demo.pmnd.rs/"
+                            variant="gradient"
+                            gradient={{ from: "blue", to: "green", deg: 105 }}
+                        >
+                            Zustand.
+                        </Text>
                     </Title>
-                    <Text className={"opacity-75 max-w-full sm:max-w-[700px]"} mt={30}>
+                    <Text className={"opacity-75 max-w-full sm:max-w-[800px]"} mt={30}>
                         This repo implements a simple chat app with Socket.io and Next.js 13.
                         <br />
                         You can use <Code>npm run dev</Code> to access
