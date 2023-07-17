@@ -5,34 +5,15 @@ import { io, Socket } from "socket.io-client";
 import { create } from "zustand";
 
 type Store = {
-    socketReady: boolean;
     socket: null | Socket;
     emit: (event: string, data: SocketMessage) => void;
+    connect: () => void;
     disconnect: () => void;
 };
 
 const useSocketStore = create<Store>((set, get) => {
-    const socket = io(
-        SOCKET_URL,
-        process.env.NODE_ENV === "development"
-            ? {
-                  path: "/api/socket/socketio",
-                  addTrailingSlash: false,
-              }
-            : {}
-    );
-    socket
-        .on("connect", () => {
-            console.log("SOCKET CONNECTED!", socket.id);
-            set({ socketReady: true });
-        })
-        .on("disconnect", () => {
-            set({ socketReady: false });
-        });
-
     return {
-        socketReady: false,
-        socket: socket,
+        socket: null,
         emit: async (event: string, data: SocketMessage) => {
             console.log("emit", event, data);
             if (process.env.NODE_ENV === "development") {
@@ -48,10 +29,40 @@ const useSocketStore = create<Store>((set, get) => {
                     if (error instanceof Error) toast.error(error?.message);
                 }
             } else {
-                // This response needs to define on server at first.
+                const { socket } = get();
+                if (!socket) return toast.error("Socket not connected");
+
+                // This callback response needs to define on server at first.
                 socket.emit(event, data, (response: { ok: boolean }) => {
                     if (!response.ok) toast.error("Something went wrong");
                 });
+            }
+        },
+        connect: () => {
+            const { socket } = get();
+            if (SOCKET_URL === undefined) return toast.error("Socket URL is undefined");
+            if (socket) {
+                console.log("Socket already connected", socket);
+                toast.error("Socket already connected");
+            } else {
+                const socket = io(
+                    SOCKET_URL,
+                    process.env.NODE_ENV === "development"
+                        ? {
+                              path: "/api/socket/socketio",
+                              addTrailingSlash: false,
+                          }
+                        : {}
+                );
+                socket
+                    .on("connect", () => {
+                        console.log("SOCKET CONNECTED!", socket.id);
+                        set({ socket });
+                    })
+                    .on("disconnect", () => {
+                        console.log("SOCKET DISCONNECTED!");
+                        set({ socket: null });
+                    });
             }
         },
         disconnect: () => {
