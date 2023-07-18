@@ -9,11 +9,10 @@ import {
   ErrorType,
 } from './core/ApiError';
 
-process.on('uncaughtException', (e) => {
-  Logger.error(e);
-});
+process.on('uncaughtException', (e) => Logger.error(e));
 
 const app = express();
+
 app.use(cors({ origin: corsUrl, optionsSuccessStatus: 200 }));
 
 // catch 404 and forward to error handler

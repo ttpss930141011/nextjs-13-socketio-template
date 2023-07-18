@@ -13,14 +13,27 @@ const io = new Server(server, {
   },
 });
 
-const userSockets = new Map();
+const onlineUsers = new Map<string, string>();
+let isEmitting = false;
+let sendOnlineUsers: NodeJS.Timeout;
 
 io.on('connection', (socket) => {
-  userSockets.set(socket.id, socket.id);
   console.log(
     'PRODUCTION SERVER: user connected, online user count:',
-    userSockets.size,
+    onlineUsers.size,
   );
+
+  socket.on('join', (data) => {
+    const { socketId, name = socketId } = data;
+    onlineUsers.set(socketId, name);
+    // console.log(
+    //   'PRODUCTION SERVER: user joined, online user count:',
+    //   'socketId: ',
+    //   socketId,
+    //   'name: ',
+    //   name,
+    // );
+  });
 
   socket.on('message', (message, callback) => {
     console.log('PRODUCTION SERVER: ', message);
@@ -34,19 +47,25 @@ io.on('connection', (socket) => {
     }
   });
 
-  socket.on('online_user', () => {
-    console.log('PRODUCTION SERVER: online_user');
-    const onlineUsers = Array.from(userSockets.values());
-    io.to(socket.id).emit('online_user', onlineUsers);
-  });
-
   socket.on('disconnect', () => {
-    userSockets.delete(socket.id);
+    onlineUsers.delete(socket.id);
     console.log(
       'PRODUCTION SERVER: user disconnected, online user count:',
-      userSockets.size,
+      onlineUsers.size,
     );
+    if (isEmitting && onlineUsers.size === 0) {
+      clearInterval(sendOnlineUsers);
+      isEmitting = false;
+    }
   });
+
+  if (!isEmitting) {
+    sendOnlineUsers = setInterval(
+      () => io.emit('online_user', Object.fromEntries(onlineUsers)),
+      5000,
+    );
+    isEmitting = true;
+  }
 });
 
 server
