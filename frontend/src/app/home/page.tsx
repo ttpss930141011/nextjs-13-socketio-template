@@ -21,7 +21,7 @@ const useStyles = createStyles((theme) => ({
         display: "flex",
         flexDirection: "row-reverse",
         flexWrap: "nowrap",
-        alignItems: "center",
+        // alignItems: "center",
         width: "100%",
         marginTop: theme.spacing.xs,
         marginBottom: theme.spacing.xs,
@@ -36,7 +36,7 @@ const useStyles = createStyles((theme) => ({
         display: "flex",
         flexDirection: "row",
         flexWrap: "nowrap",
-        alignItems: "center",
+        // alignItems: "center",
         width: "100%",
         marginTop: theme.spacing.xs,
         marginBottom: theme.spacing.xs,
@@ -47,13 +47,21 @@ const useStyles = createStyles((theme) => ({
         borderRadius: theme.radius.md,
         backgroundColor: theme.colors.gray[2],
     },
+    timestamp: {
+        display: "flex",
+        fontSize: theme.fontSizes.xs,
+        color: theme.colors.gray[5],
+        marginLeft: theme.spacing.xs,
+        marginRight: theme.spacing.xs,
+        alignItems: "flex-end",
+    },
 }));
 
 export default function Home() {
     const { socket, connect, emit } = useSocketStore((state) => state); // deconstructing socket and its method from socket store
 
-    const chatViewportRef = useRef<HTMLDivElement>(null); // binding chat viewport ref
-    const messageInputRef = useRef<HTMLInputElement>(null); // binding message input ref
+    const chatViewportRef = useRef<HTMLDivElement>(null); // binding chat viewport ref to scroll to bottom
+    const messageInputRef = useRef<HTMLInputElement>(null); // binding message input ref to focus
 
     const [targetSocketId, setTargetSocketId] = useState<string>(""); // target socket id input value
     const [message, setMessage] = useState(""); // message input value
@@ -102,7 +110,7 @@ export default function Home() {
                 <Card shadow="sm" padding="sm" radius="md" withBorder>
                     <ChatroomTitle
                         targetSocketId={targetSocketId}
-                        handleTargetSocketIdChange={(e) => setTargetSocketId(e.target.value)}
+                        setTargetSocketId={setTargetSocketId}
                     />
                     <Divider />
                     <ScrollArea h={"80vh"} offsetScrollbars viewportRef={chatViewportRef}>
@@ -122,6 +130,9 @@ export default function Home() {
                                         }
                                     >
                                         {message.message}
+                                    </Text>
+                                    <Text size="xs" className={classes.timestamp}>
+                                        {new Date(message.timestamp).toLocaleTimeString()}
                                     </Text>
                                 </div>
                             );
