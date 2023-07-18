@@ -1,7 +1,7 @@
 import { config } from 'dotenv';
 config({ path: `.env.${process.env.NODE_ENV}` });
 import Logger from './core/Logger';
-import { port } from './config';
+import { corsUrl, port } from './config';
 import app from './app';
 import http from 'http';
 import { Server } from 'socket.io';
@@ -9,7 +9,7 @@ import { Server } from 'socket.io';
 const server = http.createServer(app);
 const io = new Server(server, {
   cors: {
-    origin: '*',
+    origin: corsUrl
   },
 });
 
