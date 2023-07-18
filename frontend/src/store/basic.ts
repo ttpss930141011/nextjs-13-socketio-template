@@ -1,15 +1,16 @@
 import { create } from "zustand";
 import { persist, createJSONStorage } from "zustand/middleware";
+import { v4 as uuidv4 } from "uuid";
 
 type Store = {
-    name: null | string;
+    name: string;
     setName: (name: string) => void;
 };
 
 const useBasicStore = create<Store>()(
     persist(
         (set) => ({
-            name: null,
+            name: uuidv4(),
             setName: (name) => {
                 set({ name });
             },

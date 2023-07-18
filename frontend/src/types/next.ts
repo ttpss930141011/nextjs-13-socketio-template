@@ -17,6 +17,11 @@ export type SocketMessage = {
     timestamp: number;
 };
 
+export type SocketOnlineUser = {
+    socketId: string;
+    name: string | null;
+};
+
 /**
  * Originally, I used SocketMessage type, and only distinguish whether the message is from me or not by checking the socket id in "from" property.
  * Then I can put the message on the right side of the ScrollArea if it is from me, and on the left side if it is not.

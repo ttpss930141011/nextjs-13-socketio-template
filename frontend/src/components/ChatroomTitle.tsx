@@ -9,6 +9,7 @@ import {
     Tooltip,
     Avatar,
     Indicator,
+    Menu,
 } from "@mantine/core";
 import {
     IconPlug,
@@ -17,30 +18,44 @@ import {
     IconEdit,
     IconPlugOff,
     IconChevronDown,
+    IconUserCog,
+    IconUser,
 } from "@tabler/icons-react";
-import React, { ChangeEvent, FC, useEffect, useState } from "react";
+import { SetStateAction, Dispatch, FC, useEffect, useState } from "react";
 import NameModal from "./NameModal";
 import useBasicStore from "@/store/basic";
 import { useDisclosure } from "@mantine/hooks";
 import useSocketStore from "@/store/socket";
+import { environment } from "@/config";
 
 type Props = {
     targetSocketId: string;
-    handleTargetSocketIdChange: (e: ChangeEvent<HTMLInputElement>) => void;
+    setTargetSocketId: Dispatch<SetStateAction<string>>;
 };
 
-const ChatroomTitle: FC<Props> = ({ targetSocketId, handleTargetSocketIdChange }) => {
+const ChatroomTitle: FC<Props> = ({ targetSocketId, setTargetSocketId }) => {
     const { socket, connect, disconnect } = useSocketStore(); // deconstructing socket and its method from socket store
     const storeName = useBasicStore((state) => state.name); // get name from basic store
     const [name, setName] = useState<string | null>(null); // avoiding Next.js hydration error
     const [modalOpened, { open: modalOpen, close: modalClose }] = useDisclosure(false); // control change name modal open/close
     const [popoverOpened, setPopoverOpened] = useState(false); // control popover open/close
+    const [onlineUsers, setOnlineUsers] = useState<Record<string, string>>({}); // online users
 
     useEffect(() => {
         setName(storeName);
         if (!storeName) modalOpen();
         // eslint-disable-next-line react-hooks/exhaustive-deps
     }, [storeName]);
+
+    useEffect(() => {
+        socket?.on("online_user", (onlineUsers: Record<string, string>) => {
+            setOnlineUsers(onlineUsers);
+            console.log("online_user", onlineUsers);
+        });
+        return () => {
+            socket?.off("online_user");
+        };
+    }, [socket]);
 
     return (
         <>
@@ -54,13 +69,7 @@ const ChatroomTitle: FC<Props> = ({ targetSocketId, handleTargetSocketIdChange }
                         color={socket?.connected ? "teal" : "red"}
                         withBorder
                     >
-                        <Avatar
-                            src={null}
-                            alt="User"
-                            color="blue"
-                            radius="xl"
-                            w="fit-content"
-                        >
+                        <Avatar src={null} alt="User" color="blue" radius="xl" w="fit-content">
                             {name}
                         </Avatar>
                     </Indicator>
@@ -148,8 +157,55 @@ const ChatroomTitle: FC<Props> = ({ targetSocketId, handleTargetSocketIdChange }
                         w={170}
                         placeholder="Your target Socket ID"
                         value={targetSocketId}
-                        onChange={handleTargetSocketIdChange}
+                        onChange={(e) => setTargetSocketId(e.currentTarget.value)}
                     />
+                    <Menu shadow="md" width={200}>
+                        <Menu.Target>
+                            <ActionIcon>
+                                <IconUserCog size="1.125rem" />
+                            </ActionIcon>
+                        </Menu.Target>
+
+                        <Menu.Dropdown>
+                            <Menu.Label>
+                                {environment === "development" ? "Not available in development" : "Online user"}
+                            </Menu.Label>
+                            {socket?.connected &&
+                                Object.keys(onlineUsers)
+                                    .filter((socketId) => socketId !== socket?.id)
+                                    .map((socketId) => (
+                                        <Menu.Item
+                                            key={socketId}
+                                            onClick={() => setTargetSocketId(socketId)}
+                                        >
+                                            <Group
+                                                position="apart"
+                                                className="flex flex-row flex-nowrap"
+                                            >
+                                                <Indicator
+                                                    inline
+                                                    size={16}
+                                                    offset={5}
+                                                    position="bottom-end"
+                                                    color="teal"
+                                                    withBorder
+                                                >
+                                                    <Avatar
+                                                        src={null}
+                                                        alt="User"
+                                                        color="blue"
+                                                        radius="xl"
+                                                        w="fit-content"
+                                                    >
+                                                        <IconUser size="1.5rem" />
+                                                    </Avatar>
+                                                </Indicator>
+                                                <Text>{onlineUsers[socketId]}</Text>
+                                            </Group>
+                                        </Menu.Item>
+                                    ))}
+                        </Menu.Dropdown>
+                    </Menu>
                 </Group>
             </Group>
             <NameModal opened={modalOpened} onClose={modalClose} />
