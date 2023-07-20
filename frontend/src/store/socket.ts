@@ -1,11 +1,20 @@
 import { environment, SOCKET_URL } from "@/config";
+import { SocketBroadcastMessage, SocketOnlineUser, SocketPrivateMessage } from "@/types/next";
 import { toast } from "react-hot-toast";
 import { io, Socket } from "socket.io-client";
 import { create } from "zustand";
 
+type EmitModeDataTypes = {
+    join: SocketOnlineUser;
+    broadcast: SocketBroadcastMessage;
+    private_message: SocketPrivateMessage;
+};
+
 type Store = {
     socket: null | Socket;
-    emit: <T>(event: string, data: T) => void;
+    emitMode: "broadcast" | "private_message";
+    setEmitMode: (mode: "broadcast" | "private_message") => void;
+    emit: <T extends keyof EmitModeDataTypes>(event: T, data: EmitModeDataTypes[T]) => void;
     connect: () => void;
     disconnect: () => void;
 };
@@ -13,18 +22,22 @@ type Store = {
 const useSocketStore = create<Store>((set, get) => {
     return {
         socket: null,
+        emitMode: "broadcast",
+        setEmitMode: (mode) => {
+            set({ emitMode: mode });
+        },
         /**
          * Emits an event with data.
          *
          * @param event - The name of the event to emit.
          * @param data - The data to send along with the event.
          */
-        emit: <T>(event: string, data: T) => {
-            console.log("emit", event, data);
+        emit: (event, data) => {
+            // console.log("emit", event, data);
             // Check if environment is development
             if (environment === "development") {
-                // Send a POST request to the /api/socket/message endpoint with the data
-                fetch("/api/socket/message", {
+                // Send a POST request to the /api/socket/${event} endpoint with the data
+                fetch(`/api/socket/${event}`, {
                     method: "POST",
                     headers: {
                         "Content-Type": "application/json",

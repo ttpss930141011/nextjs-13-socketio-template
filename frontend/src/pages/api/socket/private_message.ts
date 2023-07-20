@@ -1,7 +1,7 @@
-import { NextApiResponseServerIO, SocketMessage } from "@/types/next";
+import { NextApiResponseServerIO, SocketPrivateMessage } from "@/types/next";
 import { NextApiRequest } from "next";
 
-const message = (req: NextApiRequest, res: NextApiResponseServerIO) => {
+const private_message = (req: NextApiRequest, res: NextApiResponseServerIO) => {
     if (req.method === "POST") {
         // get message
         const {
@@ -9,25 +9,25 @@ const message = (req: NextApiRequest, res: NextApiResponseServerIO) => {
             to: targetSocketId,
             timestamp,
             message,
-        } = req.body as SocketMessage;
+        } = req.body as SocketPrivateMessage;
 
         // dispatch to channel "message"
-        res?.socket?.server?.io?.to(targetSocketId).emit("message", {
+        res?.socket?.server?.io?.to(targetSocketId).emit("private_message", {
             from: sourceSocketId,
             to: targetSocketId,
             message,
             timestamp,
-        } as SocketMessage);
-        res?.socket?.server?.io?.to(sourceSocketId).emit("message", {
+        } as SocketPrivateMessage);
+        res?.socket?.server?.io?.to(sourceSocketId).emit("private_message", {
             from: sourceSocketId,
             to: targetSocketId,
             message,
             timestamp,
-        } as SocketMessage);
+        } as SocketPrivateMessage);
 
         // return message
         res.status(201).json(message);
     }
 };
 
-export default message;
+export default private_message;

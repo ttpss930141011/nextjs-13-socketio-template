@@ -2,7 +2,7 @@
 import { createStyles, Card, Container, Text, ScrollArea, Avatar } from "@mantine/core";
 import useSocketStore from "@/store/socket";
 import { useEffect, useRef, useState, useLayoutEffect } from "react";
-import { MessageWithMe, SocketMessage } from "@/types/next";
+import { MessageWithMe, SocketPrivateMessage, SocketBroadcastMessage } from "@/types/next";
 import ChatroomTitle from "@/components/ChatroomTitle";
 import ChatroomInput from "@/components/ChatroomInput";
 
@@ -63,7 +63,6 @@ const useStyles = createStyles((theme) => ({
         flexWrap: "nowrap",
         fontSize: theme.fontSizes.xs,
         color: theme.colors.gray[5],
-        marginLeft: theme.spacing.xs,
         marginRight: theme.spacing.xs,
         alignItems: "center",
     },
@@ -82,7 +81,7 @@ const useStyles = createStyles((theme) => ({
 
 export default function Home() {
     const { classes } = useStyles();
-    const { socket, connect } = useSocketStore((state) => state); // deconstructing socket and its method from socket store
+    const { socket, connect } = useSocketStore(); // deconstructing socket and its method from socket store
     const chatViewportRef = useRef<HTMLDivElement>(null); // binding chat viewport ref to scroll to bottom
     const [targetSocketId, setTargetSocketId] = useState<string>(""); // target socket id input value
     const [messages, setMessages] = useState<MessageWithMe[]>([]); // show messages on ScrollArea
@@ -102,15 +101,19 @@ export default function Home() {
 
     useEffect(() => {
         if (!socket) return;
-        socket.on("message", (message: SocketMessage) => {
+        socket.on("private_message", (message: SocketPrivateMessage) => {
+            setMessages((state) => [...state, { ...message, me: message.from === socket?.id }]);
+        });
+        socket.on("broadcast", (message: SocketBroadcastMessage) => {
             setMessages((state) => [...state, { ...message, me: message.from === socket?.id }]);
         });
         socket.on("online_user", (onlineUsers: Record<string, string>) => {
             setOnlineUsers(onlineUsers);
         });
         return () => {
-            socket?.off("message");
-            socket?.off("online_user");
+            socket.off("private_message");
+            socket.off("online_user");
+            socket.off("broadcast");
         };
     }, [socket]);
 

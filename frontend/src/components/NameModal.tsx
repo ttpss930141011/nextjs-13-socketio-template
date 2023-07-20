@@ -23,7 +23,7 @@ const NameModal: FC<NameModalProps> = ({ opened, onClose }) => {
 
     useEffect(() => {
         if (!socket) return;
-        emit<SocketOnlineUser>("join", { socketId: socket.id, name: name });
+        emit("join", { socketId: socket.id, name: name });
         // eslint-disable-next-line react-hooks/exhaustive-deps
     }, [socket?.id, name]);
 

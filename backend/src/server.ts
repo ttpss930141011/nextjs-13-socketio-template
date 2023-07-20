@@ -9,7 +9,7 @@ import { Server } from 'socket.io';
 const server = http.createServer(app);
 const io = new Server(server, {
   cors: {
-    origin: corsUrl
+    origin: corsUrl,
   },
 });
 
@@ -35,11 +35,21 @@ io.on('connection', (socket) => {
     // );
   });
 
-  socket.on('message', (message, callback) => {
+  socket.on('broadcast', (broadcast, callback) => {
+    console.log('PRODUCTION SERVER: Broadcast ', broadcast);
+    io.emit('broadcast', broadcast);
+    if (callback) {
+      callback({
+        ok: true,
+      });
+    }
+  });
+
+  socket.on('private_message', (message, callback) => {
     console.log('PRODUCTION SERVER: ', message);
     const { from: sourceSocketId, to: targetSocketId } = message;
-    io.to(targetSocketId).emit('message', message);
-    io.to(sourceSocketId).emit('message', message);
+    io.to(targetSocketId).emit('private_message', message);
+    io.to(sourceSocketId).emit('private_message', message);
     if (callback) {
       callback({
         ok: true,

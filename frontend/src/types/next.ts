@@ -10,9 +10,15 @@ export type NextApiResponseServerIO = NextApiResponse & {
     };
 };
 
-export type SocketMessage = {
+export type SocketPrivateMessage = {
     from: string;
     to: string;
+    message: string;
+    timestamp: number;
+};
+
+export type SocketBroadcastMessage = {
+    from: string;
     message: string;
     timestamp: number;
 };
@@ -23,11 +29,14 @@ export type SocketOnlineUser = {
 };
 
 /**
- * Originally, I used SocketMessage type, and only distinguish whether the message is from me or not by checking the socket id in "from" property.
+ * Originally, I used SocketPrivateMessage type, and only distinguish whether the message is from me or not by checking the socket id in "from" property.
  * Then I can put the message on the right side of the ScrollArea if it is from me, and on the left side if it is not.
  * But I found when socket reconnects, the message on the right side will be moved to the left side because the "from" property is different.
  * So I decided to add "me" property to distinguish whether the message is from me or not, and use it to put the message on the right side or left side.
  */
-export interface MessageWithMe extends SocketMessage {
+export type MessageWithMe = {
+    from: string;
     me: boolean;
-}
+    message: string;
+    timestamp: number;
+};

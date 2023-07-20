@@ -2,7 +2,6 @@
 import {
     Group,
     Text,
-    Input,
     ActionIcon,
     Popover,
     CopyButton,
@@ -10,6 +9,10 @@ import {
     Avatar as MantineAvatar,
     Indicator,
     Menu,
+    SegmentedControl,
+    Center,
+    Box,
+    TextInput,
 } from "@mantine/core";
 import {
     IconPlug,
@@ -19,6 +22,9 @@ import {
     IconChevronDown,
     IconUserCog,
     IconUser,
+    IconBroadcast,
+    IconUserShare,
+    IconClipboard,
 } from "@tabler/icons-react";
 import { SetStateAction, Dispatch, FC, useEffect, useState } from "react";
 import useSocketStore from "@/store/socket";
@@ -31,18 +37,20 @@ type Props = {
 };
 
 const ChatroomTitle: FC<Props> = ({ targetSocketId, setTargetSocketId }) => {
-    const { socket, connect, disconnect } = useSocketStore(); // deconstructing socket and its method from socket store
+    const { socket, emitMode, setEmitMode, connect, disconnect } = useSocketStore(); // deconstructing socket and its method from socket store
 
     const [popoverOpened, setPopoverOpened] = useState(false); // control popover open/close
     const [onlineUsers, setOnlineUsers] = useState<Record<string, string>>({}); // online users
+    const [opened, setOpened] = useState(false);
 
     useEffect(() => {
-        socket?.on("online_user", (onlineUsers: Record<string, string>) => {
+        if (!socket) return;
+        socket.on("online_user", (onlineUsers: Record<string, string>) => {
             setOnlineUsers(onlineUsers);
             console.log("online_user", onlineUsers);
         });
         return () => {
-            socket?.off("online_user");
+            socket.off("online_user");
         };
     }, [socket]);
 
@@ -118,25 +126,96 @@ const ChatroomTitle: FC<Props> = ({ targetSocketId, setTargetSocketId }) => {
                         </Popover.Dropdown>
                     </Popover>
                 </Group>
-                <Group noWrap w={220}>
-                    <Text w={20}>To:</Text>
-                    <Input
-                        w={170}
-                        placeholder="Target Socket ID"
-                        value={targetSocketId}
-                        onChange={(e) => setTargetSocketId(e.currentTarget.value)}
-                    />
-                    <Menu shadow="md" width={200}>
+                <Group noWrap>
+                    <Popover
+                        trapFocus
+                        position="bottom"
+                        offset={{
+                            mainAxis: 5,
+                            crossAxis: 30,
+                        }}
+                        shadow="md"
+                        opened={opened}
+                        onChange={setOpened}
+                    >
+                        <Popover.Target>
+                            <SegmentedControl
+                                size="xs"
+                                value={emitMode}
+                                onChange={(value: "broadcast" | "private_message") => {
+                                    setEmitMode(value);
+                                    if (value === "broadcast") {
+                                        setTargetSocketId("");
+                                        setOpened(false);
+                                    } else {
+                                        setOpened(true);
+                                    }
+                                }}
+                                data={[
+                                    {
+                                        value: "broadcast",
+                                        label: (
+                                            <Center>
+                                                <IconBroadcast size="1rem" />
+                                                <Box ml={10}>Broadcast</Box>
+                                            </Center>
+                                        ),
+                                    },
+                                    {
+                                        value: "private_message",
+                                        label: (
+                                            <Center>
+                                                <IconUserShare
+                                                    size="1rem"
+                                                    onClick={() => setOpened(true)}
+                                                />
+                                                <Box ml={10}>To</Box>
+                                            </Center>
+                                        ),
+                                    },
+                                ]}
+                            />
+                        </Popover.Target>
+                        <Popover.Dropdown
+                            sx={(theme) => ({
+                                background:
+                                    theme.colorScheme === "dark"
+                                        ? theme.colors.dark[7]
+                                        : theme.white,
+                            })}
+                        >
+                            <TextInput
+                                label="Socket id"
+                                placeholder="Target Socket id"
+                                size="xs"
+                                value={targetSocketId}
+                                onChange={(e) => setTargetSocketId(e.currentTarget.value)}
+                                rightSection={
+                                    <ActionIcon variant="subtle">
+                                        <IconClipboard
+                                            size="1rem"
+                                            onClick={() => {
+                                                navigator.clipboard.readText().then((text) => {
+                                                    setTargetSocketId(text);
+                                                });
+                                            }}
+                                        />
+                                    </ActionIcon>
+                                }
+                            />
+                        </Popover.Dropdown>
+                    </Popover>
+                    <Menu shadow="md" width="fit-content">
                         <Menu.Target>
-                            <ActionIcon>
-                                <IconUserCog size="1.125rem" />
+                            <ActionIcon variant="subtle">
+                                <IconUserCog size="1.25em" />
                             </ActionIcon>
                         </Menu.Target>
 
                         <Menu.Dropdown>
                             <Menu.Label>
                                 {environment === "development"
-                                    ? "Not available in development"
+                                    ? "Not available" //  in development mode, hide online user list because it's a server side feature
                                     : "Online user"}
                             </Menu.Label>
                             {socket?.connected &&
