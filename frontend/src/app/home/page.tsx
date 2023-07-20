@@ -1,5 +1,5 @@
 "use client";
-import { createStyles, Card, Container, Text, ScrollArea } from "@mantine/core";
+import { createStyles, Card, Container, Text, ScrollArea, Avatar } from "@mantine/core";
 import useSocketStore from "@/store/socket";
 import { useEffect, useRef, useState, useLayoutEffect } from "react";
 import { MessageWithMe, SocketMessage } from "@/types/next";
@@ -9,6 +9,7 @@ import ChatroomInput from "@/components/ChatroomInput";
 const useStyles = createStyles((theme) => ({
     rightMessageField: {
         display: "flex",
+        position: "relative",
         flexDirection: "row-reverse",
         width: "100%",
         marginTop: theme.spacing.xs,
@@ -35,6 +36,7 @@ const useStyles = createStyles((theme) => ({
         display: "flex",
         flexDirection: "row",
         width: "100%",
+        position: "relative",
         marginTop: theme.spacing.xs,
         marginBottom: theme.spacing.xs,
     },
@@ -55,6 +57,16 @@ const useStyles = createStyles((theme) => ({
             maxWidth: "15em",
         },
     },
+    avatar: {
+        width: "fit-content",
+        display: "flex",
+        flexWrap: "nowrap",
+        fontSize: theme.fontSizes.xs,
+        color: theme.colors.gray[5],
+        marginLeft: theme.spacing.xs,
+        marginRight: theme.spacing.xs,
+        alignItems: "center",
+    },
 
     timestamp: {
         width: "fit-content",
@@ -74,6 +86,8 @@ export default function Home() {
     const chatViewportRef = useRef<HTMLDivElement>(null); // binding chat viewport ref to scroll to bottom
     const [targetSocketId, setTargetSocketId] = useState<string>(""); // target socket id input value
     const [messages, setMessages] = useState<MessageWithMe[]>([]); // show messages on ScrollArea
+    const [onlineUsers, setOnlineUsers] = useState<Record<string, string>>({}); // online users
+
     const scrollToBottom = () => {
         chatViewportRef?.current?.scrollTo({
             top: chatViewportRef.current.scrollHeight,
@@ -87,13 +101,16 @@ export default function Home() {
     }, []);
 
     useEffect(() => {
-        console.log("socket", socket?.id);
-        socket?.on("message", (message: SocketMessage) => {
-            // console.log("message", message);
+        if (!socket) return;
+        socket.on("message", (message: SocketMessage) => {
             setMessages((state) => [...state, { ...message, me: message.from === socket?.id }]);
+        });
+        socket.on("online_user", (onlineUsers: Record<string, string>) => {
+            setOnlineUsers(onlineUsers);
         });
         return () => {
             socket?.off("message");
+            socket?.off("online_user");
         };
     }, [socket]);
 
@@ -122,6 +139,16 @@ export default function Home() {
                                     }
                                     key={message.timestamp + index}
                                 >
+                                    {!message.me && (
+                                        <div className={classes.avatar}>
+                                            <Avatar alt="User" color="blue" radius="xl">
+                                                {onlineUsers[message.from] &&
+                                                onlineUsers[message.from].length > 5
+                                                    ? `${onlineUsers[message.from].slice(0, 1)}`
+                                                    : onlineUsers[message.from]}
+                                            </Avatar>
+                                        </div>
+                                    )}
                                     <Text
                                         className={
                                             message.me ? classes.rightMessage : classes.leftMessage

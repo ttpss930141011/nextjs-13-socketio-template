@@ -48,7 +48,7 @@ const Avatar = () => {
                     onMouseEnter={() => setIsShown(true)}
                     onMouseLeave={() => setIsShown(false)}
                 >
-                    {name && name.length > 3 ? `${name.slice(0, 1)}` : name}
+                    {name && name.length > 5 ? `${name.slice(0, 1)}` : name}
                     <Overlay
                         blur={15}
                         center
