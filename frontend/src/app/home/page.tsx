@@ -1,11 +1,5 @@
 "use client";
-import {
-    createStyles,
-    Card,
-    Container,
-    Text,
-    ScrollArea,
-} from "@mantine/core";
+import { createStyles, Card, Container, Text, ScrollArea } from "@mantine/core";
 import useSocketStore from "@/store/socket";
 import { useEffect, useRef, useState, useLayoutEffect } from "react";
 import { MessageWithMe, SocketMessage } from "@/types/next";
@@ -122,9 +116,9 @@ export default function Home() {
                             return (
                                 <div
                                     className={
-                                        (message.me
+                                        message.me
                                             ? classes.rightMessageField
-                                            : classes.leftMessageField) + " whitespace-pre"
+                                            : classes.leftMessageField
                                     }
                                     key={message.timestamp + index}
                                 >
@@ -133,7 +127,14 @@ export default function Home() {
                                             message.me ? classes.rightMessage : classes.leftMessage
                                         }
                                     >
-                                        {message.message}
+                                        {message.message.split("\n").map((line, index) => {
+                                            return (
+                                                <span key={message.timestamp + index}>
+                                                    {line}
+                                                    <br />
+                                                </span>
+                                            );
+                                        })}
                                     </Text>
                                     <Text size="xs" className={classes.timestamp}>
                                         {new Date(message.timestamp).toLocaleTimeString()}
