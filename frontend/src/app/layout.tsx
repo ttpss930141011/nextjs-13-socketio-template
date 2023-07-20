@@ -10,8 +10,8 @@ type Prop = {
 };
 
 export const metadata = {
-    title: "Tiny Socket.io demo",
-    description: "This repo implements a simple chat app with Socket.io and Next.js 13.",
+    title: "A Simple Full-Stack Socket.io Demo",
+    description: "This repo implements a simple chat app with Socket.io, Next.js 13, Mantine and Zustand.",
 };
 
 export default function RootLayout({ children }: Prop) {
