@@ -19,7 +19,7 @@ export default function RootLayout({ children }: Prop) {
         <html lang="en">
             <body className={inter.className}>
                 <AppProvider>{children}</AppProvider>
-                <Toaster position="bottom-right" reverseOrder={false} />
+                <Toaster position="top-center" reverseOrder={false} />
             </body>
         </html>
     );
