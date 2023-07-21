@@ -8,7 +8,7 @@ type Props = {
     targetSocketId: string;
 };
 const useStyles = createStyles((theme) => ({
-    inputWithoutBorder: {
+    Textarea: {
         border: "none",
     },
 }));
@@ -58,25 +58,21 @@ const ChatroomInput: FC<Props> = ({ targetSocketId }) => {
     };
 
     return (
-        <Group w={"100%"} align="center">
+        <Group w={"100%"} display={"flex"} className="gap-0" position="apart" noWrap>
             <Textarea
-                classNames={{ input: classes.inputWithoutBorder }}
-                h={"100%"}
                 w={"100%"}
+                classNames={{ input: classes.Textarea }}
+                minRows={3}
+                maxRows={7}
                 ref={messageInputRef}
                 value={message}
                 onChange={(e) => setMessage(e.currentTarget.value)}
-                // radius="xl"
-                // size="md"
-                rightSection={
-                    <ActionIcon size={32} radius="xl">
-                        <IconSend size="1.5rem" stroke={1.5} onClick={sendMessage} />
-                    </ActionIcon>
-                }
                 placeholder="Type something..."
-                rightSectionWidth={42}
                 onKeyDown={handleKeyDown}
             />
+            <ActionIcon radius="xl">
+                <IconSend stroke={1.5} onClick={sendMessage} />
+            </ActionIcon>
         </Group>
     );
 };

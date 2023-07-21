@@ -39,9 +39,9 @@ type Props = {
 const ChatroomTitle: FC<Props> = ({ targetSocketId, setTargetSocketId }) => {
     const { socket, emitMode, setEmitMode, connect, disconnect } = useSocketStore(); // deconstructing socket and its method from socket store
 
-    const [popoverOpened, setPopoverOpened] = useState(false); // control popover open/close
+    const [avatarPopoverOpen, setAvatarPopoverOpen] = useState(false); // control popover open/close
     const [onlineUsers, setOnlineUsers] = useState<Record<string, string>>({}); // online users
-    const [opened, setOpened] = useState(false);
+    const [socketIdPopoverOpen, setSocketIdPopoverOpen] = useState(false);
 
     useEffect(() => {
         if (!socket) return;
@@ -56,22 +56,21 @@ const ChatroomTitle: FC<Props> = ({ targetSocketId, setTargetSocketId }) => {
 
     return (
         <>
-            <Group position="apart" mt="xs" mb="xs" noWrap h={"5vh"}>
+            <Group position="apart" mt="xs" mb="xs" noWrap align="center" w={"100%"}>
                 <Group noWrap>
                     <Avatar />
-
                     <Popover
                         width="fit-content"
                         position="bottom"
                         withArrow
                         shadow="md"
-                        opened={popoverOpened}
-                        onChange={setPopoverOpened}
+                        opened={avatarPopoverOpen}
+                        onChange={setAvatarPopoverOpen}
                     >
                         <Popover.Target>
                             <ActionIcon
                                 variant="subtle"
-                                onClick={() => setPopoverOpened((open) => !open)}
+                                onClick={() => setAvatarPopoverOpen((open) => !open)}
                             >
                                 <IconChevronDown size="1rem" />
                             </ActionIcon>
@@ -135,20 +134,25 @@ const ChatroomTitle: FC<Props> = ({ targetSocketId, setTargetSocketId }) => {
                             crossAxis: 30,
                         }}
                         shadow="md"
-                        opened={opened}
-                        onChange={setOpened}
+                        opened={socketIdPopoverOpen}
+                        onChange={setSocketIdPopoverOpen}
                     >
                         <Popover.Target>
                             <SegmentedControl
                                 size="xs"
                                 value={emitMode}
+                                onClick={() => {
+                                    if (emitMode === "private_message") {
+                                        setSocketIdPopoverOpen(true);
+                                    }
+                                }}
                                 onChange={(value: "broadcast" | "private_message") => {
                                     setEmitMode(value);
                                     if (value === "broadcast") {
                                         setTargetSocketId("");
-                                        setOpened(false);
+                                        setSocketIdPopoverOpen(false);
                                     } else {
-                                        setOpened(true);
+                                        setSocketIdPopoverOpen(true);
                                     }
                                 }}
                                 data={[
@@ -165,10 +169,7 @@ const ChatroomTitle: FC<Props> = ({ targetSocketId, setTargetSocketId }) => {
                                         value: "private_message",
                                         label: (
                                             <Center>
-                                                <IconUserShare
-                                                    size="1rem"
-                                                    onClick={() => setOpened(true)}
-                                                />
+                                                <IconUserShare size="1rem" />
                                                 <Box ml={10}>To</Box>
                                             </Center>
                                         ),
@@ -205,7 +206,7 @@ const ChatroomTitle: FC<Props> = ({ targetSocketId, setTargetSocketId }) => {
                             />
                         </Popover.Dropdown>
                     </Popover>
-                    <Menu shadow="md" width="fit-content">
+                    <Menu shadow="md">
                         <Menu.Target>
                             <ActionIcon variant="subtle">
                                 <IconUserCog size="1.25em" />
@@ -224,7 +225,11 @@ const ChatroomTitle: FC<Props> = ({ targetSocketId, setTargetSocketId }) => {
                                     .map((socketId) => (
                                         <Menu.Item
                                             key={socketId}
-                                            onClick={() => setTargetSocketId(socketId)}
+                                            onClick={() => {
+                                                setEmitMode("private_message");
+                                                setSocketIdPopoverOpen(true);
+                                                setTargetSocketId(socketId);
+                                            }}
                                         >
                                             <Group
                                                 position="apart"

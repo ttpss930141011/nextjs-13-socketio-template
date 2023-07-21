@@ -124,56 +124,76 @@ export default function Home() {
     return (
         <>
             <Container size="md" h={"100vh"}>
-                <Card shadow="sm" padding="sm" radius="md" withBorder h={"100%"}>
-                    <Card.Section withBorder inheritPadding py="xs" h={"10%"}>
+                <Card
+                    shadow="sm"
+                    padding="sm"
+                    radius="md"
+                    withBorder
+                    h={"100%"}
+                    className="flex flex-col"
+                >
+                    <Card.Section
+                        component="a"
+                        withBorder
+                        inheritPadding
+                        py="xs"
+                        h={"10%"}
+                        display={"flex"}
+                        mih={"65px"}
+                    >
                         <ChatroomTitle
                             targetSocketId={targetSocketId}
                             setTargetSocketId={setTargetSocketId}
                         />
                     </Card.Section>
-                    <ScrollArea offsetScrollbars viewportRef={chatViewportRef} h={"85%"}>
-                        {messages.map((message, index) => {
-                            return (
-                                <div
-                                    className={
-                                        message.me
-                                            ? classes.rightMessageField
-                                            : classes.leftMessageField
-                                    }
-                                    key={message.timestamp + index}
-                                >
-                                    {!message.me && (
-                                        <div className={classes.avatar}>
-                                            <Avatar alt="User" color="blue" radius="xl">
-                                                {onlineUsers[message.from] &&
-                                                onlineUsers[message.from].length > 5
-                                                    ? `${onlineUsers[message.from].slice(0, 1)}`
-                                                    : onlineUsers[message.from]}
-                                            </Avatar>
-                                        </div>
-                                    )}
-                                    <Text
+                    <Card.Section withBorder inheritPadding py="xs" h={"85%"} mih={"300px"}>
+                        <ScrollArea offsetScrollbars viewportRef={chatViewportRef} h={"100%"}>
+                            {messages.map((message, index) => {
+                                return (
+                                    <div
                                         className={
-                                            message.me ? classes.rightMessage : classes.leftMessage
+                                            message.me
+                                                ? classes.rightMessageField
+                                                : classes.leftMessageField
                                         }
+                                        key={message.timestamp + index}
                                     >
-                                        {message.message.split("\n").map((line, index) => {
-                                            return (
-                                                <span key={message.timestamp + index}>
-                                                    {line}
-                                                    <br />
-                                                </span>
-                                            );
-                                        })}
-                                    </Text>
-                                    <Text size="xs" className={classes.timestamp}>
-                                        {new Date(message.timestamp).toLocaleTimeString()}
-                                    </Text>
-                                </div>
-                            );
-                        })}
-                    </ScrollArea>
-                    <Card.Section withBorder inheritPadding h={"10%"}>
+                                        {!message.me && (
+                                            <div className={classes.avatar}>
+                                                <Avatar alt="User" color="blue" radius="xl">
+                                                    {onlineUsers[message.from] &&
+                                                    onlineUsers[message.from].length > 5
+                                                        ? `${onlineUsers[message.from].slice(0, 1)}`
+                                                        : onlineUsers[message.from]}
+                                                </Avatar>
+                                            </div>
+                                        )}
+                                        <Text
+                                            className={
+                                                message.me
+                                                    ? classes.rightMessage
+                                                    : classes.leftMessage
+                                            }
+                                        >
+                                            {message.message.split("\n").map((line, index) => {
+                                                return (
+                                                    <span key={message.timestamp + index}>
+                                                        {line}
+                                                        <br />
+                                                    </span>
+                                                );
+                                            })}
+                                        </Text>
+                                        <Text size="xs" className={classes.timestamp}>
+                                            {new Date(message.timestamp).toLocaleTimeString()}
+                                        </Text>
+                                    </div>
+                                );
+                            })}
+                        </ScrollArea>
+                    </Card.Section>
+
+                    <Card.Section withBorder h={"5%"} mih={"80px"}>
                         <ChatroomInput targetSocketId={targetSocketId} />
                     </Card.Section>
                 </Card>
