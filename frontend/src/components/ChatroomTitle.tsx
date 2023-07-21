@@ -13,6 +13,7 @@ import {
     Center,
     Box,
     TextInput,
+    Loader,
 } from "@mantine/core";
 import {
     IconPlug,
@@ -78,7 +79,8 @@ const ChatroomTitle: FC<Props> = ({ targetSocketId, setTargetSocketId }) => {
                         <Popover.Dropdown>
                             <Group position="apart">
                                 <Text size="sm">SocketID</Text>
-                                {socket?.id && (
+
+                                {socket?.id ? (
                                     <CopyButton value={socket.id} timeout={2000}>
                                         {({ copied, copy }) => (
                                             <Tooltip
@@ -99,6 +101,8 @@ const ChatroomTitle: FC<Props> = ({ targetSocketId, setTargetSocketId }) => {
                                             </Tooltip>
                                         )}
                                     </CopyButton>
+                                ) : (
+                                    <Loader size="1em" color="blue" />
                                 )}
                             </Group>
                             <Group position="apart">
