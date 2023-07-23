@@ -96,8 +96,7 @@ export default function Home() {
 
     useEffect(() => {
         connect();
-        // eslint-disable-next-line react-hooks/exhaustive-deps
-    }, []);
+    }, [connect]);
 
     useEffect(() => {
         if (!socket) return;
@@ -160,7 +159,11 @@ export default function Home() {
                                     >
                                         {!message.me && (
                                             <div className={classes.avatar}>
-                                                <Avatar alt="User" color="blue" radius="xl">
+                                                <Avatar
+                                                    alt={onlineUsers[message.from]}
+                                                    color="blue"
+                                                    radius="xl"
+                                                >
                                                     {onlineUsers[message.from] &&
                                                     onlineUsers[message.from].length > 5
                                                         ? `${onlineUsers[message.from].slice(0, 1)}`

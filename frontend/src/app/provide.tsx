@@ -8,15 +8,15 @@ type Prop = {
     children: React.ReactNode;
 };
 export function AppProvider({ children }: Prop) {
-    const [disconnect] = useSocketStore(({ disconnect }) => [disconnect]);
+    const disconnect = useSocketStore((state) => state.disconnect);
 
     useEffect(() => {
+        window.addEventListener("beforeunload", disconnect);
         return () => {
-            console.log("disconnect");
+            window.removeEventListener("beforeunload", disconnect);
             disconnect();
         };
-        // eslint-disable-next-line react-hooks/exhaustive-deps
-    }, []);
+    }, [disconnect]);
 
     return (
         <RootStyleRegistry>

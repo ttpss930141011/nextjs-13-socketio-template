@@ -12,8 +12,8 @@ type EmitModeDataTypes = {
 
 type Store = {
     socket: null | Socket;
-    emitMode: "broadcast" | "private_message";
-    setEmitMode: (mode: "broadcast" | "private_message") => void;
+    emitMode: keyof EmitModeDataTypes;
+    setEmitMode: (mode: keyof EmitModeDataTypes) => void;
     emit: <T extends keyof EmitModeDataTypes>(event: T, data: EmitModeDataTypes[T]) => void;
     connect: () => void;
     disconnect: () => void;
@@ -33,30 +33,14 @@ const useSocketStore = create<Store>((set, get) => {
          * @param data - The data to send along with the event.
          */
         emit: (event, data) => {
-            // console.log("emit", event, data);
-            // Check if environment is development
-            if (environment === "development") {
-                // Send a POST request to the /api/socket/${event} endpoint with the data
-                fetch(`/api/socket/${event}`, {
-                    method: "POST",
-                    headers: {
-                        "Content-Type": "application/json",
-                    },
-                    body: JSON.stringify(data),
-                }).catch((error) => {
-                    // Display an error message if there was an error sending the request
-                    if (error instanceof Error) toast.error(error?.message);
-                });
-            } else {
-                const { socket } = get();
-                if (!socket) return toast.error("Socket not connected");
-                // This callback response needs to define on server at first.
-                // Emit the event with the data and handle the response
-                socket.emit(event, data, (response: { ok: boolean }) => {
-                    // Display an error message if response.ok is false
-                    if (!response.ok) toast.error("Something went wrong");
-                });
-            }
+            const { socket } = get();
+            if (!socket) return toast.error("Socket not connected");
+            // This callback response needs to define on server at first.
+            // Emit the event with the data and handle the response
+            socket.emit(event, data, (response: { ok: boolean }) => {
+                // Display an error message if response.ok is false
+                if (!response.ok) toast.error("Something went wrong");
+            });
         },
         /**
          * Connects to the socket server.

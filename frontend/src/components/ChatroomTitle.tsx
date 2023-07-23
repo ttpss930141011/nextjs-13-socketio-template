@@ -29,7 +29,6 @@ import {
 } from "@tabler/icons-react";
 import { SetStateAction, Dispatch, FC, useEffect, useState } from "react";
 import useSocketStore from "@/store/socket";
-import { environment } from "@/config";
 import Avatar from "./Avatar";
 
 type Props = {
@@ -218,11 +217,7 @@ const ChatroomTitle: FC<Props> = ({ targetSocketId, setTargetSocketId }) => {
                         </Menu.Target>
 
                         <Menu.Dropdown>
-                            <Menu.Label>
-                                {environment === "development"
-                                    ? "Not available" //  in development mode, hide online user list because it's a server side feature
-                                    : "Online user"}
-                            </Menu.Label>
+                            <Menu.Label>Online user</Menu.Label>
                             {socket?.connected &&
                                 Object.keys(onlineUsers)
                                     .filter((socketId) => socketId !== socket?.id)
